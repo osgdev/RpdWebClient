@@ -44,7 +44,7 @@ public class SubmitJobClient {
     }
 
     public boolean submit(String filename) {
-        return submit(new File(filename));
+        return trySubmit(new File(filename));
     }
     
     /**
@@ -54,7 +54,7 @@ public class SubmitJobClient {
      * @param filename Full path to the file in the working directory
      * @return true, if successful
      */
-    public boolean submit(File file) {
+    public boolean trySubmit(File file) {
 
         // construct html body with file as attachment
         try (MultiPart multiPart = new MultiPart()) {

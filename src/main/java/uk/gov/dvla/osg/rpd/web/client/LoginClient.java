@@ -19,7 +19,7 @@ import uk.gov.dvla.osg.rpd.web.json.JsonUtils;
  */
 public class LoginClient {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
     
     private RpdErrorResponse error = new RpdErrorResponse();
     private final String url;
@@ -68,8 +68,8 @@ public class LoginClient {
                 error = JsonUtils.getError(data);
             } else {
                 error.setCode("Login Error:");
-                error.setName("Login Error");
-                error.setMessage("Response is not JSON!");
+                error.setName(data);
+                error.setMessage("Response is not valid JSON!");
                 error.setAction("Please notify Dev Team.");
             }
         } catch (ProcessingException ex) {

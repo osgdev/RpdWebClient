@@ -5,18 +5,24 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
+import uk.gov.dvla.osg.rpd.web.config.NetworkConfig;
 import uk.gov.dvla.osg.rpd.web.config.Session;
+import uk.gov.dvla.osg.rpd.web.json.JsonUtils;
 
 /**
  * Utility methods to transmit messages to the RPD REST service.
  * These are set by the RPD REST api and shouldn't be amended.
  */
 public class RestClient {
+    
+    static final Logger LOGGER = LogManager.getLogger();
 	
-	/**
+    /**
 	 * Sends a login request to RPD using credentials in the Session object.
 	 * @param url RPD login URL in format hostname:port address
 	 * @return Response in JSON format, containing a session token for the currently logged in user
@@ -67,7 +73,28 @@ public class RestClient {
 	 * @return 202 status code if file was transmitted successfully
 	 */
 	public static Response rpdSubmit(String url, MultiPart multiPart) {
-		return ClientBuilder.newClient()
+	    /*********** Retrieve token for the AIW user ****************/
+	    String loginUrl = NetworkConfig.getInstance().getLoginUrl();
+            
+        AppCredentials appCredentials = new AppCredentials();
+            
+        try (Response response = ClientBuilder.newClient()
+                .target(loginUrl)
+                .queryParam("name", appCredentials.getUsername())
+                .queryParam("pwd", appCredentials.getPassword())
+                .request(MediaType.APPLICATION_JSON)
+                .get()) {
+                
+            String data = response.readEntity(String.class);
+            appCredentials.setToken(JsonUtils.getTokenFromJson(data));
+        } catch (Exception ex) {
+            LOGGER.fatal("Unable to log Application into RPD. Check password is valid.", ex.getMessage());
+            return null;
+        }
+        
+        /**********************************************************/
+		
+        return ClientBuilder.newClient()
 				.register(MultiPartFeature.class)
 				.target(url)
 				.request(MediaType.APPLICATION_JSON)
