@@ -98,7 +98,7 @@ public class RestClient {
 				.register(MultiPartFeature.class)
 				.target(url)
 				.request(MediaType.APPLICATION_JSON)
-		        .header("ippdcredential", "<credential token='" + Session.getInstance().getToken() + "'/>")
+		        .header("ippdcredential", "<credential token='" + appCredentials.getToken() + "'/>")
 		        .post(Entity.entity(multiPart, multiPart.getMediaType()));
 	}
 	

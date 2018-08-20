@@ -16,10 +16,11 @@ import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import uk.gov.dvla.osg.rpd.web.config.NetworkConfig;
 import uk.gov.dvla.osg.rpd.web.error.RpdErrorResponse;
 import uk.gov.dvla.osg.rpd.web.json.JsonUtils;
+import uk.gov.dvla.osg.rpd.web.xml.xmlUtils;
 
 public class SubmitJobClient {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    static final Logger LOGGER = LogManager.getLogger();
 
     private RpdErrorResponse error = new RpdErrorResponse();
     private String url;
@@ -46,7 +47,7 @@ public class SubmitJobClient {
     public boolean submit(String filename) {
         return trySubmit(new File(filename));
     }
-    
+
     /**
      * Constructs the header and file body for the HTML message as a MultiPart
      * object and then passes it to the RestClient to send to RPD.
@@ -55,7 +56,6 @@ public class SubmitJobClient {
      * @return true, if successful
      */
     public boolean trySubmit(File file) {
-
         // construct html body with file as attachment
         try (MultiPart multiPart = new MultiPart()) {
             multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
@@ -64,7 +64,6 @@ public class SubmitJobClient {
             try (Response response = RestClient.rpdSubmit(url, multiPart)) {
                 MediaType mediaType = response.getMediaType();
                 String data = response.readEntity(String.class);
-                LOGGER.trace(data);
                 // 202 response means file received by RPD
                 if (response.getStatus() == 202) {
                     // File received by RPD, file can be safely deleted
@@ -73,6 +72,8 @@ public class SubmitJobClient {
                 } else if (mediaType.equals(MediaType.APPLICATION_JSON_TYPE)) {
                     // RPD provides clear error information, and so is mapped to model
                     error = JsonUtils.getError(data);
+                } else if (mediaType.equals(MediaType.APPLICATION_XML_TYPE)) {
+                    error = new xmlUtils().getXmlError(data);
                 } else {
                     error.setCode("Submit Job Error:");
                     error.setMessage(data);
@@ -107,7 +108,7 @@ public class SubmitJobClient {
         }
         return false;
     }
-    
+
     /**
      * Retrieves the error response if an empty optional was returned from the
      * getSessionToken method.
