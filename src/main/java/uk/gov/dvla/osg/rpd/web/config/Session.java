@@ -2,7 +2,6 @@ package uk.gov.dvla.osg.rpd.web.config;
 
 import org.apache.commons.lang3.StringUtils;
 
-// TODO: Auto-generated Javadoc
 /**
  * Session information for the logged in user.
  */
@@ -14,17 +13,10 @@ public class Session {
      * ****************************************************************************************.
      */
 
-    private static class SingletonHelper {
-        
-        /** The Constant INSTANCE. */
+    private static class SingletonHelper {        
         private static final Session INSTANCE = new Session();
     }
-
-    /**
-     * Gets the single instance of Session.
-     *
-     * @return single instance of Session
-     */
+    
     public static Session getInstance() {
         return SingletonHelper.INSTANCE;
     }
@@ -37,14 +29,8 @@ public class Session {
     /** **************************************************************************************. */
     
     private String userName;
-    
-    /** The password. */
     private String password;
-    
-    /** The token. */
     private String token;
-    
-    /** The is admin. */
     private Boolean isAdmin;
     
     /**

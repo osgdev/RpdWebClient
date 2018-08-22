@@ -35,6 +35,15 @@ public class LoginClient {
     }
 
     /**
+     * Gets a new instance of the RpdLoginClient
+     * 
+     * @param config
+     * @return a new instance of the RpdLoginClient.
+     */
+    public static LoginClient getInstance() {
+        return new LoginClient();
+    }
+    /**
      * Instantiates a new rpd login client.
      *
      * @param config the config
@@ -43,6 +52,14 @@ public class LoginClient {
         this.url = config.getLoginUrl();
     }
 
+    /**
+     * Instantiates a new rpd login client.
+     *
+     * @param config the config
+     */
+    private LoginClient() {
+        this.url = NetworkConfig.getInstance().getLoginUrl();
+    }
     /**
      * Contacts RPD and attempts to retrieve a session token using the supplied
      * credentials.
