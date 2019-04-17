@@ -10,9 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
-import uk.gov.dvla.osg.rpd.web.config.NetworkConfig;
 import uk.gov.dvla.osg.rpd.web.config.Session;
-import uk.gov.dvla.osg.rpd.web.json.JsonUtils;
 
 /**
  * Utility methods to transmit messages to the RPD REST service.
@@ -72,33 +70,12 @@ public class RestClient {
 	 * @param multiPart Should contain the file(s) to transmit
 	 * @return 202 status code if file was transmitted successfully
 	 */
-	public static Response rpdSubmit(String url, MultiPart multiPart) {
-	    /*********** Retrieve token for the AIW user ****************/
-	    String loginUrl = NetworkConfig.getInstance().getLoginUrl();
-            
-        AppCredentials appCredentials = new AppCredentials();
-            
-        try (Response response = ClientBuilder.newClient()
-                .target(loginUrl)
-                .queryParam("name", appCredentials.getUsername())
-                .queryParam("pwd", appCredentials.getPassword())
-                .request(MediaType.APPLICATION_JSON)
-                .get()) {
-                
-            String data = response.readEntity(String.class);
-            appCredentials.setToken(JsonUtils.getTokenFromJson(data));
-        } catch (Exception ex) {
-            LOGGER.fatal("Unable to log Application into RPD. Check password is valid.", ex.getMessage());
-            return null;
-        }
-        
-        /**********************************************************/
-		
+	public static Response rpdSubmit(String url, MultiPart multiPart) {	
         return ClientBuilder.newClient()
 				.register(MultiPartFeature.class)
 				.target(url)
 				.request(MediaType.APPLICATION_JSON)
-		        .header("ippdcredential", "<credential token='" + appCredentials.getToken() + "'/>")
+		        .header("ippdcredential", "<credential token='" + Session.getInstance().getToken() + "'/>")
 		        .post(Entity.entity(multiPart, multiPart.getMediaType()));
 	}
 	
