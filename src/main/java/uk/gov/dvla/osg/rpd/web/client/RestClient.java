@@ -2,6 +2,7 @@ package uk.gov.dvla.osg.rpd.web.client;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -26,13 +27,15 @@ public class RestClient {
 	 * @return Response in JSON format, containing a session token for the currently logged in user
 	 */
 	public static Response rpdLogin(String url, String userName, String password) {
-		//Note: unencrypted credentials is a requirement of the RPD RESTAPI
-		return ClientBuilder.newClient()
-							.target(url)
-							.queryParam("name", userName)
-							.queryParam("pwd", password)
-							.request(MediaType.APPLICATION_JSON)
-							.get();
+        // webform data encoded in body of the HTTP request
+        Form formData = new Form();
+        formData.param("name", userName);
+        formData.param("pwd", password);
+        
+        return ClientBuilder.newClient()
+                            .target(url)
+                            .request(MediaType.APPLICATION_JSON)
+                            .post(Entity.form(formData));
 	}
 	
 	/**
@@ -44,7 +47,7 @@ public class RestClient {
         return ClientBuilder.newClient()
                             .target(url)
                             .request(MediaType.APPLICATION_JSON)
-                            .header("ippdcredential", "<credential token='" + Session.getInstance().getToken() + "'/>")
+                            .header("token", Session.getInstance().getToken())
                             .get();
     }
     
@@ -55,13 +58,14 @@ public class RestClient {
 	 * @return Response in JSON format includes an array of groups to which the user belongs
 	 */
 	public static Response rpdGroup(String url) {
-		return ClientBuilder.newClient()
-							.register(MultiPartFeature.class)
-							.target(url)
-							.queryParam("attribute", "User.Groups")
-							.request(MediaType.APPLICATION_JSON)
-							.header("token", Session.getInstance().getToken())
-							.get();
+        return ClientBuilder.newClient()
+                .register(MultiPartFeature.class)
+                .target(url)
+                .queryParam("attribute", "User.Groups")
+                .queryParam("criteria", "\"" + Session.getInstance().getUserName() + "\"")
+                .request(MediaType.APPLICATION_JSON)
+                .header("token", Session.getInstance().getToken())
+                .get();
 	}
 
 	/**
@@ -71,12 +75,13 @@ public class RestClient {
 	 * @return 202 status code if file was transmitted successfully
 	 */
 	public static Response rpdSubmit(String url, MultiPart multiPart) {	
+        // Send file using the new token
         return ClientBuilder.newClient()
-				.register(MultiPartFeature.class)
-				.target(url)
-				.request(MediaType.APPLICATION_JSON)
-		        .header("ippdcredential", "<credential token='" + Session.getInstance().getToken() + "'/>")
-		        .post(Entity.entity(multiPart, multiPart.getMediaType()));
+                .register(MultiPartFeature.class)
+                .target(url)
+                .request(MediaType.APPLICATION_JSON)
+                .header("token", Session.getInstance().getToken())
+                .post(Entity.entity(multiPart, multiPart.getMediaType()));
 	}
 	
 	/**

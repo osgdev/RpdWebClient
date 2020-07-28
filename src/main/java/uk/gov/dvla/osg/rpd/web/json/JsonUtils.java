@@ -66,15 +66,16 @@ public class JsonUtils {
      */
     public static boolean isUserInDevGroup(String jsonString) throws JsonSyntaxException {
         try {
-            /* User.Groups contains a json array with a single element getAsString() will
-             * fail if there is more than one group in the User.Groups array */
             JsonObject json = new JsonParser().parse(jsonString).getAsJsonObject();
-            // Check if user has been assigned to a group
-            boolean hasGroup = json.has("User.Groups");
-            if (hasGroup) {
-                return json.get("User.Groups").getAsString().equalsIgnoreCase("dev");
+            // loop through and check all groups the user is a member of
+            if (json.has("User.Groups") && json.get("User.Groups").isJsonArray()) {
+                for (JsonElement group : json.get("User.Groups").getAsJsonArray()) {
+                    if (group.getAsString().equalsIgnoreCase("dev")) {
+                        return true;
+                    }
+                }
             }
-        } catch (JsonSyntaxException e) {
+        } catch (Exception e) {
             throw e;
         }
         return false;

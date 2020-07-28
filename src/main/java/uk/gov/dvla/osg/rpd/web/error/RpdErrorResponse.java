@@ -28,7 +28,7 @@ public class RpdErrorResponse {
     private String action = "";
     
     // For logging Java Exception Stack Traces
-    private String exception = "";
+    private Exception exception = null;
         
     /**
      * Gets the name of the error.
@@ -133,16 +133,23 @@ public class RpdErrorResponse {
      * Gets the full exception stack trace.
      * @return the exception
      */
-    public String getException() {
-        return StringUtils.defaultString(exception);
+    public Exception getException() {
+        return exception;
     }
     
+    /**
+     * Gets the full exception stack trace.
+     * @return the exception
+     */
+    public String getStackTrace() {
+        return StringUtils.defaultString(ExceptionUtils.getStackTrace(exception));
+    }
     /**
      * Sets the exception.
      * @param ex the new exception
      */
     public void setException(Exception ex) {
-        this.exception = ExceptionUtils.getStackTrace(ex);
+        this.exception = ex;
     }
     
     /* (non-Javadoc)

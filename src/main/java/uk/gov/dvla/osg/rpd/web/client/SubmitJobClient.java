@@ -1,7 +1,6 @@
 package uk.gov.dvla.osg.rpd.web.client;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.MediaType;
@@ -57,11 +56,11 @@ public class SubmitJobClient {
      */
     public boolean trySubmit(File file) {
         // construct html body with file as attachment
-        try (MultiPart multiPart = new MultiPart()) {
-            multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);
-            multiPart.bodyPart(new FileDataBodyPart("file", file));
-
-            try (Response response = RestClient.rpdSubmit(url, multiPart)) {
+        FileDataBodyPart fdbp = new FileDataBodyPart("file", file, MediaType.TEXT_PLAIN_TYPE);
+        
+            try (MultiPart multiPart = new MultiPart(MediaType.MULTIPART_FORM_DATA_TYPE);
+                    MultiPart body = multiPart.bodyPart(fdbp); 
+                    Response response = RestClient.rpdSubmit(url, body)) {
                 MediaType mediaType = response.getMediaType();
                 String data = response.readEntity(String.class);
                 // 202 response means file received by RPD
@@ -70,7 +69,6 @@ public class SubmitJobClient {
                     FileUtils.deleteQuietly(file);
                     return true;
                 } else if (mediaType.equals(MediaType.APPLICATION_JSON_TYPE)) {
-                    // RPD provides clear error information, and so is mapped to model
                     error = JsonUtils.getError(data);
                 } else if (mediaType.equals(MediaType.APPLICATION_XML_TYPE)) {
                     error = new xmlUtils().getXmlError(data);
@@ -100,12 +98,6 @@ public class SubmitJobClient {
                 error.setAction("Please notify Dev Team.");
                 error.setException(ex);
             }
-        } catch (IOException ex) {
-            error.setCode("Submit Job Error:");
-            error.setMessage("Unable to create file MultiPart.");
-            error.setAction("Please notify Dev Team.");
-            error.setException(ex);
-        }
         return false;
     }
 

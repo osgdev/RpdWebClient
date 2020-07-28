@@ -30,26 +30,8 @@ public class LoginClient {
      * @param config
      * @return a new instance of the RpdLoginClient.
      */
-    public static LoginClient getInstance(NetworkConfig config) {
-        return new LoginClient(config);
-    }
-
-    /**
-     * Gets a new instance of the RpdLoginClient
-     * 
-     * @param config
-     * @return a new instance of the RpdLoginClient.
-     */
     public static LoginClient getInstance() {
         return new LoginClient();
-    }
-    /**
-     * Instantiates a new rpd login client.
-     *
-     * @param config the config
-     */
-    private LoginClient(NetworkConfig config) {
-        this.url = config.getLoginUrl();
     }
 
     /**
