@@ -68,7 +68,7 @@ public class NetworkConfig {
     private String checkIfAdminUrl = "";    
     private String despatchUrl = "";
     private String submitJobUrl;
-    private String passwordUpdateUrl;
+    private String passwordUpdateUrl = "";
   
     /**
      * Instantiates a new network config from the fields in the property file.
@@ -86,9 +86,9 @@ public class NetworkConfig {
             logoutUrl = urlBase + loader.getProperty("logoutUrl");
             vaultUrl = urlBase + loader.getProperty("vaultUrl");
             checkIfAdminUrl = urlBase + loader.getProperty("checkIfAdminUrl");
-            despatchUrl = urlBase + loader.getProperty("despatchUrl");
+            //despatchUrl = urlBase + loader.getProperty("despatchUrl");
             submitJobUrl = urlBase + loader.getProperty("submitJobUrl");
-            passwordUpdateUrl = urlBase + loader.getProperty("updateUrl");
+            //passwordUpdateUrl = urlBase + loader.getProperty("updateUrl");
         } catch (IOException ex) {
             LOGGER.fatal("Unable to load properties from Network Configuration File {}", filename);
             System.exit(1);

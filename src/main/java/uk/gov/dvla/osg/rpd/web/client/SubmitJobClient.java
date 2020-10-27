@@ -64,7 +64,7 @@ public class SubmitJobClient {
                 MediaType mediaType = response.getMediaType();
                 String data = response.readEntity(String.class);
                 // 202 response means file received by RPD
-                if (response.getStatus() == 202) {
+                if (response.getStatus() == 200) {
                     // File received by RPD, file can be safely deleted
                     FileUtils.deleteQuietly(file);
                     return true;
